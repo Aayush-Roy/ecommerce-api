@@ -1,0 +1,87 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+  <body>
+    <button id="pay">Pay Now</button>
+
+    <script>
+      document.getElementById("pay").onclick = () => {
+        const options = {
+          key: "rzp_test_RxjR252uFY0hjf", // 👈 your TEST key
+          amount: 99900,
+          currency: "INR",
+          name: "Ecom Test",
+          description: "Test Payment",
+          order_id: "69536e455f5b976d2987af7e", // 👈 backend se aaya hua
+          handler: function (response) {
+            console.log("Razorpay Response:", response);
+
+            // 👇 YE DATA verify API me jayega
+            fetch("http://localhost:8000/api/payments/verify", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTUzNjk3MDVmYmM1NTllZmYwY2M3NTMiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NzA3NDE2MCwiZXhwIjoxNzY3Njc4OTYwfQ.ORdtCuockjPKegH8YfKz-HSF73uXtF1k8PruP71c5p0"
+              },
+              body: JSON.stringify(response)
+            })
+            .then(res => res.json())
+            .then(data => console.log("VERIFY RESPONSE:", data));
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      };
+    </script>
+  </body>
+</html> -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+  <body>
+    <button id="pay">Pay Now</button>
+
+    <script>
+      document.getElementById("pay").onclick = () => {
+        const options = {
+          key: "rzp_test_RxjR252uFY0hjf", // ✅ TEST KEY
+          amount: 99998, // ✅ EXACT paisa (999.98 × 100)
+          currency: "INR",
+          name: "Ecom Test",
+          description: "Test Payment",
+         method: {
+    upi: true,        // ✅ FORCE UPI
+    card: true,
+    netbanking: true
+  },
+          // ✅ RAZORPAY ORDER ID (NOT Mongo ID)
+          order_id: "order_RxjciFfyLgdUen",
+
+          handler: function (response) {
+            console.log("Razorpay Response:", response);
+
+            fetch("http://localhost:8000/api/payments/verify", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              },
+              body: JSON.stringify(response)
+            })
+            .then(res => res.json())
+            .then(data => console.log("VERIFY RESPONSE:", data))
+            .catch(err => console.error(err));
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      };
+    </script>
+  </body>
+</html>

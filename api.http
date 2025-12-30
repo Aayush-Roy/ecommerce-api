@@ -1,0 +1,238 @@
+# --- GLOBAL VARIABLES ---
+# ⚠️ Replace these with actual values generated after login/registration
+@baseUrl = http://localhost:8000
+@userEmail = jane.doe@example.com
+@adminEmail = admin@example.com
+@password = password123
+
+# --- AUTH TOKENS (Will be set automatically after successful login) ---
+@userAuthToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTUzNjk3MDVmYmM1NTllZmYwY2M3NTMiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NzA3NDE2MCwiZXhwIjoxNzY3Njc4OTYwfQ.ORdtCuockjPKegH8YfKz-HSF73uXtF1k8PruP71c5p0
+@adminAuthToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTUzNjlhMTVmYmM1NTllZmYwY2M3NTgiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjcwNzQyMDksImV4cCI6MTc2NzY3OTAwOX0.hl1S300AK7MtFH7vYVmsZ2GM4DNPIfgk_jZQ-mhf_5w
+@productId = 
+@categoryId = 
+@orderId = 
+
+# ----------------------------------------------------------------------
+# 1️⃣ AUTHENTICATION MODULE
+# ----------------------------------------------------------------------
+
+### 1.1. Register a new USER
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Jane Doe",
+    "email": "{{userEmail}}",
+    "password": "{{password}}"
+}
+
+### 1.2. Register an ADMIN
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Admin Boss",
+    "email": "{{adminEmail}}",
+    "password": "{{password}}",
+    "role": "ADMIN"
+}
+
+### 1.3. Login as USER and Save Token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{userEmail}}",
+    "password": "{{password}}"
+}
+# Automatically save the token and user ID for the next requests
+> {% 
+    client.global.set("userAuthToken", response.body.data.token);
+    client.global.set("userId", response.body.data.user._id);
+%}
+
+### 1.4. Login as ADMIN and Save Token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{adminEmail}}",
+    "password": "{{password}}"
+}
+> {% client.global.set("adminAuthToken", response.body.data.token); %}
+
+
+### 1.5. Get Current User Profile (USER)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{userAuthToken}}
+
+# ----------------------------------------------------------------------
+# 2️⃣ CATEGORY MODULE (Admin Required)
+# ----------------------------------------------------------------------
+
+### 2.1. Create Category (ADMIN)
+POST {{baseUrl}}/api/categories
+Content-Type: application/json
+Authorization: Bearer {{adminAuthToken}}
+
+{
+    "name": "Electronics"
+}
+> {% client.global.set("categoryId", response.body.data._id); %}
+
+### 2.2. List All Categories (Public)
+GET {{baseUrl}}/api/categories
+
+### 2.3. Update Category (ADMIN)
+PUT {{baseUrl}}/api/categories/{{categoryId}}
+Content-Type: application/json
+Authorization: Bearer {{adminAuthToken}}
+
+{
+    "name": "Premium Electronics"
+}
+
+### 2.4. Delete Category (ADMIN)
+DELETE {{baseUrl}}/api/categories/{{categoryId}}
+Authorization: Bearer {{adminAuthToken}}
+
+
+# ----------------------------------------------------------------------
+# 3️⃣ PRODUCT MODULE (Admin and Public)
+# ----------------------------------------------------------------------
+
+# --- Re-run 2.1 to ensure @categoryId is set ---
+
+### 3.1. Create Product (ADMIN)
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{adminAuthToken}}
+
+{
+    "title": "SmartWatch X9",
+    "description": "Latest smartwatch with health tracking.",
+    "price": 499.99,
+    "stock": 50,
+    "images": ["image_url_1", "image_url_2"],
+    "category": "69536b295fbc559eff0cc75c"
+}
+> {% client.global.set("productId", response.body.data._id); %}
+
+
+### 3.2. Get All Products (Public, with Pagination/Search)
+GET {{baseUrl}}/api/products?page=1&limit=5&search=smartwatch
+
+### 3.3. Get Single Product (Public)
+GET {{baseUrl}}/api/products/{{productId}}
+
+### 3.4. Update Product (ADMIN)
+PUT {{baseUrl}}/api/products/{{productId}}
+Content-Type: application/json
+Authorization: Bearer {{adminAuthToken}}
+
+{
+    "price": 449.99,
+    "stock": 45
+}
+
+# ----------------------------------------------------------------------
+# 4️⃣ CART MODULE (User Required)
+# ----------------------------------------------------------------------
+
+### 4.1. Add Product to Cart (USER)
+POST {{baseUrl}}/api/cart/add
+Content-Type: application/json
+Authorization: Bearer {{userAuthToken}}
+
+{
+    "productId": "69536b9e5fbc559eff0cc762",
+    "quantity": 2
+}
+
+### 4.2. Get User Cart (USER)
+GET {{baseUrl}}/api/cart
+Authorization: Bearer {{userAuthToken}}
+
+### 4.3. Update Cart Item Quantity (USER)
+PUT {{baseUrl}}/api/cart/update
+Content-Type: application/json
+Authorization: Bearer {{userAuthToken}}
+
+{
+    "productId": "{{productId}}",
+    "quantity": 5
+}
+
+### 4.4. Remove Item from Cart (USER)
+DELETE {{baseUrl}}/api/cart/remove/{{productId}}
+Authorization: Bearer {{userAuthToken}}
+
+# --- Re-run 4.1 to ensure cart has items before placing order ---
+# ----------------------------------------------------------------------
+
+# ----------------------------------------------------------------------
+# 5️⃣ ORDER MODULE (User Required)
+# ----------------------------------------------------------------------
+
+### 5.1. Create Order from Cart (USER)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Authorization: Bearer {{userAuthToken}}
+
+{
+    "address": {
+        "street": "123 API Street",
+        "city": "Noida, Uttar Pradesh",
+        "zip": "110001",
+        "country": "India"
+    }
+}
+> {% 
+    client.global.set("orderId", response.body.data._id);
+    client.global.set("orderAmount", response.body.data.totalAmount);
+%}
+
+### 5.2. Get User's Order History (USER)
+GET {{baseUrl}}/api/orders/my-orders
+Authorization: Bearer {{userAuthToken}}
+
+### 5.3. Get Single Order Details (USER/ADMIN)
+GET {{baseUrl}}/api/orders/{{orderId}}
+Authorization: Bearer {{userAuthToken}}
+
+### 5.4. Get All Orders (ADMIN)
+GET {{baseUrl}}/api/orders/admin/all
+Authorization: Bearer {{adminAuthToken}}
+
+
+# ----------------------------------------------------------------------
+# 6️⃣ PAYMENT MODULE (Razorpay Test Flow)
+# ----------------------------------------------------------------------
+
+### 6.1. Create Razorpay Order ID (USER)
+# This returns the necessary Razorpay Order ID and Amount to open the modal
+POST {{baseUrl}}/api/payments/create-order
+Content-Type: application/json
+Authorization: Bearer {{userAuthToken}}
+
+{
+    "orderId": "69536e455f5b976d2987af7e"
+}
+> {% 
+    client.global.set("razorpayOrderId", response.body.data.razorpayOrderId);
+    // Note: You must manually get razorpay_payment_id and razorpay_signature 
+    // from the successful payment response on the frontend/Razorpay modal callback.
+%}
+
+### 6.2. Verify Payment (USER)
+# ⚠️ IMPORTANT: Replace RAZORPAY_PAYMENT_ID and RAZORPAY_SIGNATURE 
+# with values obtained after successfully paying using the Razorpay test card.
+POST {{baseUrl}}/api/payments/verify
+Content-Type: application/json
+Authorization: Bearer {{userAuthToken}}
+
+{
+    "razorpay_order_id": "{{razorpayOrderId}}",
+    "razorpay_payment_id": "REPLACE_WITH_ACTUAL_RAZORPAY_PAYMENT_ID_FROM_FRONTEND", 
+    "razorpay_signature": "REPLACE_WITH_ACTUAL_RAZORPAY_SIGNATURE_FROM_FRONTEND" 
+}
