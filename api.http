@@ -6,7 +6,7 @@
 @password = password123
 
 # --- AUTH TOKENS (Will be set automatically after successful login) ---
-@userAuthToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTUzNjk3MDVmYmM1NTllZmYwY2M3NTMiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NzA3NDE2MCwiZXhwIjoxNzY3Njc4OTYwfQ.ORdtCuockjPKegH8YfKz-HSF73uXtF1k8PruP71c5p0
+@userAuthToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTU0YjUwMTM1NWNjMTAxOWU0ODAzODAiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NzE2NjM0NSwiZXhwIjoxNzY3NzcxMTQ1fQ.HP3ajlVxgdBCQIJkNv_HVXdgw4O9Smj5iAyPZrAE79A
 @adminAuthToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTUzNjlhMTVmYmM1NTllZmYwY2M3NTgiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NjcwNzQyMDksImV4cCI6MTc2NzY3OTAwOX0.hl1S300AK7MtFH7vYVmsZ2GM4DNPIfgk_jZQ-mhf_5w
 @productId = 
 @categoryId = 
@@ -42,8 +42,8 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "{{userEmail}}",
-    "password": "{{password}}"
+    "email": "aayush@gmail.com",
+    "password": "123456"
 }
 # Automatically save the token and user ID for the next requests
 > {% 
@@ -109,12 +109,15 @@ Content-Type: application/json
 Authorization: Bearer {{adminAuthToken}}
 
 {
-    "title": "SmartWatch X9",
-    "description": "Latest smartwatch with health tracking.",
-    "price": 499.99,
-    "stock": 50,
-    "images": ["image_url_1", "image_url_2"],
-    "category": "69536b295fbc559eff0cc75c"
+  "title": "Smartwatch Pro S10",
+  "description": "Advanced smartwatch with heart rate monitor, SpO2 tracking, and AMOLED display.",
+  "price": 699.99,
+  "stock": 40,
+  "images": [
+    "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f",
+    "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+  ],
+  "category": "69536b295fbc559eff0cc75c"
 }
 > {% client.global.set("productId", response.body.data._id); %}
 
@@ -216,7 +219,7 @@ Content-Type: application/json
 Authorization: Bearer {{userAuthToken}}
 
 {
-    "orderId": "69536e455f5b976d2987af7e"
+    "orderId": "6954f23e772aa7688bee4fdb"
 }
 > {% 
     client.global.set("razorpayOrderId", response.body.data.razorpayOrderId);
@@ -232,7 +235,7 @@ Content-Type: application/json
 Authorization: Bearer {{userAuthToken}}
 
 {
-    "razorpay_order_id": "{{razorpayOrderId}}",
-    "razorpay_payment_id": "REPLACE_WITH_ACTUAL_RAZORPAY_PAYMENT_ID_FROM_FRONTEND", 
-    "razorpay_signature": "REPLACE_WITH_ACTUAL_RAZORPAY_SIGNATURE_FROM_FRONTEND" 
+    "razorpay_order_id": "order_RxjciFfyLgdUen",
+    "razorpay_payment_id": "pay_Rxk04HpTJzFshB", 
+    "razorpay_signature": "c0fad02b32b5077beec99d0467b91b6d17dd4acc8c9644907851693c859ba4b6" 
 }

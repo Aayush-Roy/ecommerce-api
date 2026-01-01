@@ -12,7 +12,9 @@ import Product from "../models/Product.model.js";
 export const createOrder = asyncHandler(async (req, res) => {
     const userId = req.user._id;
     const { address } = req.body;
-
+console.log('🟢 [ORDER] Creating order...');
+    console.log('🟢 [ORDER] Request body:', JSON.stringify(req.body, null, 2));
+    console.log('🟢 [ORDER] User:', req.user);
     if (!address || !address.street || !address.city || !address.zip) {
         throw new ApiError(400, "Shipping address is required.");
     }

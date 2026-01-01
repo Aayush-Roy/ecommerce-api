@@ -50,7 +50,7 @@
       document.getElementById("pay").onclick = () => {
         const options = {
           key: "rzp_test_RxjR252uFY0hjf", // ✅ TEST KEY
-          amount: 99998, // ✅ EXACT paisa (999.98 × 100)
+          amount: 199.99, // ✅ EXACT paisa (999.98 × 100)
           currency: "INR",
           name: "Ecom Test",
           description: "Test Payment",
@@ -69,7 +69,7 @@
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTU0YjUwMTM1NWNjMTAxOWU0ODAzODAiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NzE2NjM0NSwiZXhwIjoxNzY3NzcxMTQ1fQ.HP3ajlVxgdBCQIJkNv_HVXdgw4O9Smj5iAyPZrAE79A"
               },
               body: JSON.stringify(response)
             })
